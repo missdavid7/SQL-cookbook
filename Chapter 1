@@ -57,6 +57,40 @@ select ename, sal,
                         else 'OK'
                         end as status
 		from emp;
+		
+/* 1.9 Limiting the number of rows returned*/
+select * 
+	from emp limit 5;
+    
+/*1.10 Returning N Random Records from a table*/
+
+select ename, job
+	from emp
+    order by rand() limit 5;
+    
+/*1.11 Finding Null Values*/  
+select * 
+	from emp
+    where comm is null;
+    
+/*1.12 Transforming Nulls into real values*/
+select coalesce(comm, 0)
+	from emp;
+-- The COALESCE function takes one or more values as arguments. The fuction returns the first non-null value in the list. 
+-- In the solution, the value of COMM is returned whenever COMM is not null. Ow,a zero is returned.
+    
+select case 
+	when comm is null then 0
+    else comm
+    end 
+from emp;
+
+/*1.13 Searching for Patthens*/
+select ename, job
+	from emp
+    where deptno in (10,20)
+    and (ename like '%I%' or job like 'ER');
+    
         
         
 
