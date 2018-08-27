@@ -1,1 +1,64 @@
+/*2.1 Returing Query Results in a specified order*/
+select ename, job, sal 
+from emp 
+where deptno = 10
+order by sal asc;
 
+select ename,job,sal
+from emp
+where deptno = 10
+order by 3 desc;
+
+/*2.2 Sorting by Multiple Fields*/
+select empno,deptno,sal,ename,job
+from emp
+order by deptno asc, sal desc;
+
+
+/*2.3 Sorting by substrings*/
+/*sort by the last two characters in the job field*/
+select ename,job
+	from emp
+    order by substr(job, length(job)-2);
+
+
+
+/*2.4 Sorting Mixed Alphanumeric Data*/
+create view V
+as 
+select  concat (ename ,' ', deptno) as data
+	from emp;
+    
+
+select *
+from V;
+
+  
+ 
+/*2.5 Dealing with Nulls when Sorting*/   
+select ename,sal,comm
+	from emp
+    order by 3;
+
+select ename, sal, comm
+	from emp
+    order by 3 desc;
+    
+    
+-- Non-null comm sorted ascending, all nulls last
+
+
+select ename, sal,comm
+from (
+select ename, sal, comm,
+	case when comm is null then 0
+			else 1 end as null_check
+		from emp)
+        x
+order by null_check desc, comm;
+    
+
+/*2.6  Dealing with Nulls when Sorting*/   
+select ename,sal,job, comm
+from emp
+order by case when job = 'SALESMAN' then comm else sal end;
