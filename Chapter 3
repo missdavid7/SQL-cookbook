@@ -90,6 +90,9 @@ select * from B;
 -- Solution:
 -- First, find rows in table EMP that do not exist in view B
 -- Then combine (union all) those rows with rows from view V that do not exist in table EMP
+
+
+
  select *
 from ( select e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,e.deptno,count(*) as cnt
  from emp  e
