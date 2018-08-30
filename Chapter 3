@@ -1,0 +1,37 @@
+/*3.1 Stacking one rowset atop another*/     
+select ename as ename_and_dname,deptno
+    from emp
+    where deptno = 10
+    union all
+select '-----------', null
+	union all
+select dname,deptno
+    from dept;
+    
+/*3.2 Combining related rows*/   
+select e.ename,d.loc
+from emp as e,dept as d
+where e.deptno = 10 and e.deptno = d.deptno;
+
+select e.ename,d.loc
+from emp as e 
+inner join 
+dept as d
+on (e.deptno = d.deptno)
+where e.deptno = 10;
+
+    
+/*3.3 Finding rows in common between two tables*/   
+create view A
+as 
+select ename,job, sal
+from emp
+where job  =  'CLERK';
+select * from A;
+
+select e.empno,e.ename,e.job,e.sal,e.deptno
+from emp as e, A
+where e.ename = A.ename
+and e.job = A.job
+and e.sal = A.sal;
+
