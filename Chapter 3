@@ -35,3 +35,98 @@ where e.ename = A.ename
 and e.job = A.job
 and e.sal = A.sal;
 
+/*3.4 Retrieving values from one table that do not exist in another*/
+select deptno
+from dept
+where deptno not in (select deptno from emp);   
+
+
+/*3.5 Retrieving rows from one table that do not correspond to rows in another*/
+select d.* 
+from dept d left join emp e 
+on (d.deptno = e.deptno)
+where e.deptno is null;
+
+/*3.6 Adding joins to a query without interfering with other joins*/
+
+
+drop table if exists emp_bonus;
+create table emp_bonus(
+	empno			NUMERIC 		not null,
+    Received			date				not null,
+    type				numeric			not null
+);
+
+
+insert into emp_bonus
+	(EMPNO, RECEIVED, Type)
+values
+	(7369, '2005-3-14', 1),
+	(7900, '2005-3-14', 2),
+	(7788, '2005-3-14', 3);
+
+
+select e.ename,d.loc,eb.received
+from emp e join dept d 
+on (e.deptno = d.deptno)
+left join emp_bonus eb
+on(e.empno = eb.empno)
+order by 2;
+
+select e.ename,d.loc
+from emp e join dept d 
+on (e.deptno = d.deptno);
+
+
+
+/*3.7 Determining whether two tables have the same data*/
+create view B 
+as 
+select * from emp where deptno != 10
+union all 
+select * from emp where ename = 'Ward';
+select * from B;
+
+-- Solution:
+-- First, find rows in table EMP that do not exist in view B
+-- Then combine (union all) those rows with rows from view V that do not exist in table EMP
+ select *
+from ( select e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,e.deptno,count(*) as cnt
+ from emp  e
+ group by  empno,ename,job,mgr,hiredate,sal,comm,deptno) e
+ where not exists (
+select null
+from (
+select  b.empno,b.ename,b.job,b.mgr,b.hiredate,b.sal,b.comm,b.deptno,count(*) as cnt
+from b 
+group by  empno,ename,job,mgr,hiredate,sal,comm,deptno) b
+where b.empno = e.empno 
+and b.ename = e.ename
+and b.job = e.job
+and coalesce(b.mgr,0) = coalesce(e.mgr,0)
+and b.hiredate = e.hiredate
+and b.sal = e.sal
+and coalesce(b.comm,0) = coalesce(e.comm,0)
+)
+union all
+ select *
+	from ( select b.empno,b.ename,b.job,b.mgr,b.hiredate,b.sal,b.comm,b.deptno,count(*) as cnt
+ from emp b
+ group by  empno,ename,job,mgr,hiredate,sal,comm,deptno) b
+ where not exists (
+select null
+from (
+select  e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,e.deptno,count(*) as cnt
+from emp e 
+group by  empno,ename,job,mgr,hiredate,sal,comm,deptno) e
+where b.empno = e.empno 
+and b.ename = e.ename
+and b.job = e.job
+and coalesce(b.mgr,0) = coalesce(e.mgr,0)
+and b.hiredate = e.hiredate
+and b.sal = e.sal
+and coalesce(b.comm,0) = coalesce(e.comm,0)
+);
+
+
+
