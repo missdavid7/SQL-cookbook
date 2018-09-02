@@ -131,5 +131,123 @@ and b.sal = e.sal
 and coalesce(b.comm,0) = coalesce(e.comm,0)
 );
 
+/*3.8 Identifying and avoiding cartesian products*/
+select e.ename, d.loc
+	from emp e,dept d
+    where e.deptno = 10
+    and d.deptno = e.deptno;
+    
+
+/*3.9 IPerforming joins when using aggregates*/
+DROP TABLE IF EXISTS emp_bonus;
+ CREATE TABLE emp_bonus(
+	EMPNO 		NUMERIC 	NOT NULL,
+	RECIEVED 	DATE 		NOT NULL,
+	TYPE 		NUMERIC 	NOT NULL
+);
+ INSERT INTO emp_bonus
+	(EMPNO, RECIEVED, TYPE)
+VALUES 
+	(7934, '2005-3-17', 1),
+	(7934, '2005-3-15', 2),
+	(7839, '2005-3-15', 3),
+	(7782, '2005-3-15', 1);
+    
+select deptno, sum(distinct sal) as total_sal, sum(bonus) as total_bonus
+from ( 
+	select e.empno,
+		e.ename,
+                e.sal,
+                e.deptno,
+                e.sal * case 
+                                     -- include extra case 
+                                    when eb.type = 1 then 0.1
+				    when eb.type = 2 then 0.2
+                                    else .3
+                                    end as bonus
+	from emp e, emp_bonus eb
+    where e.empno = eb.empno
+    and e.deptno = 10
+    ) x
+    group by deptno;
+    
+select d.deptno, 
+d.total_sal,
+sum(e.sal * case when eb.type =1 then 0.1
+		 when eb.type = 2 then 0.2
+		 else .3 end) as total_bonus
+from emp e, 
+	emp_bonus eb,
+		(
+select deptno, sum(sal) as total_sal
+		from emp
+            where deptno =10
+            group by deptno
+            ) d
+where e.deptno = d.deptno 
+and e.empno = eb.empno
+group by d.deptno,d.total_sal;
+    
+/*3.10 Performing Outer Joins when using aggregates*/
+drop table if exists emp_bonus;
+create table emp_bonus
+(empno	numeric	not null,
+received 	date 	not null,
+type	numeric	not null);
+
+insert into emp_bonus
+(empno,received,type)
+value 
+(7934, '2005-3-17', 1),
+	(7934, '2005-2-15', 2);
+    
+ select deptno,
+ sum(distinct sal) as total_sal, 
+ sum(bonus) as total_bonus
+from ( 
+	select e.empno,
+		e.ename,
+                e.sal,
+                e.deptno,
+                e.sal * case 
+                 -- include extra case 
+                            when eb.type = 1 then 0.1
+			    when eb.type = 2 then 0.2
+                            else .3
+                                    end as bonus
+	from emp e left outer join emp_bonus eb
+    on (e.empno = eb.empno)
+    where e.deptno = 10
+    ) x
+    group by deptno;
+    
+/*3.11 Returning missing data from multiple tables*/
+select d.deptno,d.dname,e.ename
+from dept d left outer join emp e 
+on (d.deptno = e.deptno);
+
+insert into emp(empno,ename,job,mgr,hiredate,sal,comm,deptno)
+select 1111,'yoda','jedi',null,hiredate,sal,comm,null
+from emp
+where ename = 'king';
+
+select d.deptno,d.dname,e.ename
+from dept d right outer join emp e
+on (d.deptno = e.deptno);
+
+
+select d.deptno,d.dname,e.ename
+from dept d left outer join emp e 
+on (d.deptno = e.deptno)
+union
+select d.deptno,d.dname,e.ename
+from dept d right outer join emp e
+on (d.deptno = e.deptno);
+
+
+ /*3.12 Using nulls in operations and comparisons*/
+ select ename,comm,coalesce(comm,0)
+ from emp
+ where coalesce(comm,0) < (select comm from emp where ename = 'WARD');
 
 
