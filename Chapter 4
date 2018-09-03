@@ -1,0 +1,48 @@
+-- Chapter4 Inserting, updating and deleting
+ -- Inserting new records into your database
+ -- Updating existing records
+ -- Deleting records that you no longer want
+ 
+  /*4.1 Inserting a new record*/
+  
+-- As a shortcut, you can omit the column list in an INSERT statement; However, if you do not list your target columns, you must insert 
+-- into all of the columns in the table, and be  mindful of the order of the values in the VALUES list;
+insert into dept (deptno,dname,loc)
+value (50,'programming','baltimore');
+
+  /*4.2 Inserting Default Values*/
+  insert into D values (default);
+  
+  
+  
+/*4.3 Overriding a default value with NULL*/
+create table D (id integer default 0, foo varchar(10));
+-- You wish to insert a row with a NuLL value for ID
+insert into D (id,foo) values (null, 'Brighten');
+-- or
+insert into d(foo) values ('Brighten');
+
+/*4.4 Copying Rows from one table into another*/
+CREATE TABLE dept_east (
+  deptno decimal(2,0) default NULL,
+  dname varchar(14) default NULL,
+  loc varchar(13) default NULL
+);
+
+insert into dept_east (deptno,dname,loc)
+select deptno,dname,loc
+from dept
+where loc in ('New York', 'Boston');
+
+
+/*4.5 Copying a table definition*/
+create table dept_2
+as
+select * 
+	from dept 
+-- In the solution provided, the expression "1 = 0" in the WHERE clause of the query causes no rows to be returned. 
+-- Thus the result of the CTAS (Create Table As Select) statement is an empty table based on the columns in the SELECT clause of the query.
+where 1= 0;
+
+/*4.6 Inserting into multiple tables at once*/
+-- As of the time of this writing,these vendors do not support multi-table inserts.
